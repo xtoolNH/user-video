@@ -3,6 +3,7 @@ import sys
 import traceback
 import logging
 import cv2
+import datetime
 
 """
     user-video:
@@ -18,6 +19,9 @@ try:
     # Read Further Arguments
     incoming_variable = argumentList[0]
 
+    if not os.path.isdir('logs/'):
+        os.mkdir('logs/')
+
     # Define Folder Paths for Read - Write Operations
     logging.basicConfig(filename='logs/' + incoming_variable + '.log', level=logging.DEBUG)
     final_folder_path = '../../Reports/' + incoming_variable + '/final/'
@@ -25,17 +29,18 @@ try:
 
     logging.info('Starting User Video Capture via Webcam')
     # Define Webcam Input
-    # 0: External Webcam via USB
-    # 1: System Embedded Webcam
-    webcam_number = 0
+    # 0: System Embedded Webcam
+    # 1: External Webcam via USB
+    webcam_number = 1
     cap = cv2.VideoCapture(webcam_number)
     # Define the codec and create VideoWriter object
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'avc1')    # `XVID` for avi file
 
-    filename = final_folder_path + incoming_variable + '_User.avi'
+    filename = final_folder_path + incoming_variable + '_User.mp4'
     logging.info('Filename for User Video saving is:\t' + filename)
+    print('Filename for User Video saving is:\t' + filename)
 
-    out = cv2.VideoWriter(filename, fourcc, 20.0, (640, 480))
+    out = cv2.VideoWriter(filename, fourcc, 24.0, (640, 480))
     # Make a New Directory to Store final Data files i.e. `final/`
     if not os.path.exists(final_folder_path):
         os.mkdir(final_folder_path)
@@ -49,19 +54,19 @@ try:
         ret, frame = cap.read()
         if ret:
             # read webcam feed frame by frame
-            logging.info('reading frame from webcam')
             frame = cv2.flip(frame, 1)
 
             # write the flipped frame
-            logging.info('writing frame to video file')
+            logging.info(str(datetime.datetime.now()) + '\twriting frame to video file')
+            print(str(datetime.datetime.now()) + '\tsaving frame to video file')
             out.write(frame)
 
-            cv2.imshow('frame', frame)
+            cv2.imshow('User Video', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                logging.info('Exiting while loop from user Capture Video File')
+                logging.info(str(datetime.datetime.now()) + '\tExiting while loop from user Video after pressing `q`')
                 break
         else:
-            logging.info('Exiting while loop from user Capture Video File')
+            logging.info(str(datetime.datetime.now()) + '\tExiting while loop from user Capture Video File')
             break
 
     # Release everything if job is finished
